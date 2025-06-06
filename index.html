@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ספר טלפונים</title>
+  <link rel="stylesheet" href="css.css">
+</head>
+
+<body>
+  <header class="container">
+    <h1>ספר טלפונים</h1>
+  </header>
+
+  <main class="container">
+    <input type="text" id="search" placeholder="Search by name...">
+    <ul id="contact-list"></ul>
+    <div class="actions">
+      <button id="add-contact">Add Contact</button>
+      <button id="delete-all">Delete All</button>
+      <button id="toggle-effect">Change theme</button>
+    </div>
+  </main>
+
+  <div id="popup" class="popup">
+    <div class="popup-content">
+      <span class="close-popup">&times;</span>
+      <h2 id="popup-title">Add/Edit Contact</h2>
+      <form id="contact-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" required>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email">
+        <label for="notes">Notes:</label>
+        <textarea id="notes" name="notes"></textarea>
+        <button type="submit" id="save-contact">Save</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmation popup for delete all -->
+  <div id="confirm-popup" class="popup">
+    <div class="popup-content">
+      <h2>Confirm Delete</h2>
+      <p>Are you sure you want to delete all contacts?</p>
+      <div class="confirm-actions">
+        <button id="confirm-delete">Yes, delete all</button>
+        <button id="cancel-delete">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="container">
+    <p>&copy; 2025 ספר טלפונים by Dennis Bondrayov</p>
+  </footer>
+
+  <script src="js.js"></script>
+</body>
+
+</html>
