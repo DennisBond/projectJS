@@ -249,10 +249,6 @@ button.delete:hover {
   margin-top: 20px;
 }
 
-#confirm-delete {
-  background-color: #f44336;
-  color: white;
-}
 
 #cancel-delete {
   background-color: #9e9e9e;
