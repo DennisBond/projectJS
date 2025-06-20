@@ -1,6 +1,5 @@
 'use strict'
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const contactList = document.getElementById('contact-list');
   const addContactBtn = document.getElementById('add-contact');

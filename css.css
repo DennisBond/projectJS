@@ -97,7 +97,7 @@ main {
 }
 
 .contact-item:hover .contact-details {
-  display: block;
+  display: none;
 }
 
 .buttons {
