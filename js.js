@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 document.addEventListener("DOMContentLoaded", () => {
   const contactList = document.getElementById('contact-list');
@@ -14,7 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const confirmDeleteBtn = document.getElementById('confirm-delete');
   const cancelDeleteBtn = document.getElementById('cancel-delete');
   const confirmMessage = confirmPopup.querySelector('p');
+
   let editingContact = null;
+  let contactToDelete = null;
   let darkThemeActive = false;
 
   const contacts = [
@@ -22,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: 'Liran Hazan', phone: '052-2345678', address: '10 Zarfat St, Haifa', email: 'michal@example.com', notes: 'neiborhod' },
     { name: 'Maor Shaked', phone: '050-3456789', address: '15 Geula Cohen St, Jerusalem', email: 'yossi@example.com', notes: 'Cousin' },
     { name: 'Kiril Koval', phone: '053-9876543', address: '13 Hadekel St, Tiberias', email: 'nadav@example.com', notes: 'Best friend' },
-    { name: 'Yakir yakov', phone: '053-9876543', address: '13 Kiryat Chaim', email: 'nadav@example.com', notes: 'Best friend' }
+    { name: 'Yakir Yakov', phone: '053-9876543', address: '13 Kiryat Chaim', email: 'nadav@example.com', notes: 'Best friend' }
   ];
 
   contacts.sort((a, b) => a.name.localeCompare(b.name));
@@ -44,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <button class="delete" data-index="${index}">Delete</button>
             </div>
           </div>
-          <div class="contact-details">
+          <div class="contact-details" style="display: none;">
             <p><strong>Address:</strong> ${contact.address || 'N/A'}</p>
             <p><strong>Email:</strong> ${contact.email || 'N/A'}</p>
             <p><strong>Notes:</strong> ${contact.notes || 'N/A'}</p>
@@ -55,7 +57,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function openPopup(index = null, readonly = false) {
+    popup.style.display = 'block';
+    editingContact = readonly ? null : index;
+    popupTitle.textContent = readonly ? 'Contact Info' : (index !== null ? 'Edit Contact' : 'Add Contact');
 
+    if (index !== null) {
+      const contact = contacts[index];
+      contactForm.name.value = contact.name;
+      contactForm.phone.value = contact.phone;
+      contactForm.address.value = contact.address || '';
+      contactForm.email.value = contact.email || '';
+      contactForm.notes.value = contact.notes || '';
+    } else {
+      contactForm.reset();
+    }
+
+    // הפיכת השדות לקריאה בלבד אם צריך
+    const fields = contactForm.querySelectorAll('input, textarea');
+    fields.forEach(field => {
+      field.readOnly = readonly;
+    });
+
+    // הסתרת כפתור שמירה אם תצוגה בלבד
+    contactForm.querySelector('button[type="submit"]').style.display = readonly ? 'none' : 'inline-block';
+  }
 
   function closePopup() {
     popup.style.display = 'none';
@@ -69,18 +95,29 @@ document.addEventListener("DOMContentLoaded", () => {
   function addContact(event) {
     event.preventDefault();
 
-    if (!contactForm.name.value || !contactForm.phone.value) {
+    const name = contactForm.name.value.trim();
+    const phone = contactForm.phone.value.trim();
+    const address = contactForm.address.value.trim();
+    const email = contactForm.email.value.trim();
+    const notes = contactForm.notes.value.trim();
+
+    if (!name || !phone) {
       alert('Name and phone are required.');
       return;
     }
 
-    if (!validatePhone(contactForm.phone.value)) {
+    if (!validatePhone(phone)) {
       alert('Invalid phone number format. Use XXX-XXXXXXX.');
       return;
     }
 
+    const newContact = { name, phone, address, email, notes };
 
-
+    const duplicate = contacts.some((c, i) => c.name === name && i !== editingContact);
+    if (duplicate) {
+      alert('A contact with this name already exists.');
+      return;
+    }
 
     if (editingContact !== null) {
       contacts[editingContact] = newContact;
@@ -93,13 +130,15 @@ document.addEventListener("DOMContentLoaded", () => {
     closePopup();
   }
 
-
+  function deleteContact(index) {
+    contacts.splice(index, 1);
+    renderContacts();
+  }
 
   function deleteAllContacts() {
     contacts.length = 0;
     renderContacts();
   }
-
 
   function searchContacts() {
     const query = searchInput.value.toLowerCase();
@@ -118,9 +157,11 @@ document.addEventListener("DOMContentLoaded", () => {
     darkThemeActive = !darkThemeActive;
   }
 
+  // אירועים
   addContactBtn.addEventListener('click', () => openPopup());
   closePopupBtn.addEventListener('click', closePopup);
   contactForm.addEventListener('submit', addContact);
+
   deleteAllBtn.addEventListener('click', () => {
     confirmMessage.textContent = 'Are you sure you want to delete all contacts?';
     confirmDeleteBtn.textContent = 'Yes, delete all';
@@ -138,19 +179,25 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmPopup.style.display = 'none';
   });
 
+  cancelDeleteBtn.addEventListener('click', () => {
+    confirmPopup.style.display = 'none';
+    contactToDelete = null;
+  });
 
   contactList.addEventListener('click', (event) => {
     if (event.target.classList.contains('more-info')) {
-      const details = event.target.closest('.contact-item').querySelector('.contact-details');
-      details.style.display = details.style.display === 'block' ? 'none' : 'block';
+      const index = parseInt(event.target.dataset.index);
+      openPopup(index, true); // מצב תצוגה בלבד
     } else if (event.target.classList.contains('delete')) {
-      const index = event.target.dataset.index;
+      const index = parseInt(event.target.dataset.index);
       contactToDelete = index;
       const contact = contacts[index];
       confirmMessage.textContent = `Are you sure you want to delete ${contact.name}?`;
       confirmDeleteBtn.textContent = 'Yes, delete';
       confirmPopup.style.display = 'flex';
-
+    } else if (event.target.classList.contains('edit')) {
+      const index = parseInt(event.target.dataset.index);
+      openPopup(index); // מצב עריכה
     }
   });
 
